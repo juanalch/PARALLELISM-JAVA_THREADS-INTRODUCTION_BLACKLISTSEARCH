@@ -11,6 +11,7 @@
 
 ### Descripción
   Este ejercicio contiene una introducción a la programación con hilos en Java, además de la aplicación a un caso concreto.
+  **Integrantes**: Anderson fabían García y Juana Lozano Chaves
   
 
 **Parte I - Introducción a Hilos en Java**
@@ -20,8 +21,18 @@
 	1. Cree 3 hilos de tipo CountThread, asignándole al primero el intervalo [0..99], al segundo [99..199], y al tercero [200..299].
 	2. Inicie los tres hilos con 'start()'.
 	3. Ejecute y revise la salida por pantalla. 
-	4. Cambie el incio con 'start()' por 'run()'. Cómo cambia la salida?, por qué?.
+	![alt text](ThreadsCount1.png)
+	![alt text](ThreadsCount2.png)
+	![alt text](ThreadsCount3.png)
+	4. Cambie el incio con 'start()' por 'run()'. 
+	![alt text](ThreadsCount1-1.png)
+	![alt text](ThreadsCount2-1.png)
+	![alt text](ThreadsCount3-1.png)
 
+	Cómo cambia la salida?, por qué?.
+	La diferencia principal se evidencia en el orden que se imprimen los resultados, cuando ejecutamos el método start los hilos se ejecutan e imprimen de una forma intercalada debido al scheduler del sistema operativo es por eso que las secuencias de numeros se ven a pedazos, es decir una parte del primer hilo, luego otra parte del segundo y así. Cuando se ejecuta el método run() se ejecutan los ilos de forma secuencial, hasta que un hilo termine no comienza el siguiente.
+
+	
 **Parte II - Ejercicio Black List Search**
 
 
