@@ -33,8 +33,10 @@
 	![alt text](img/LabImage/run/ThreadsCount2.png)
 	![alt text](img/LabImage/run/ThreadsCount3.png)
 
-	Cómo cambia la salida?, por qué?.
-	La diferencia principal se evidencia en el orden que se imprimen los resultados, cuando ejecutamos el método start los hilos se ejecutan e imprimen de una forma intercalada debido al scheduler del sistema operativo es por eso que las secuencias de numeros se ven a pedazos, es decir una parte del primer hilo, luego otra parte del segundo y así. Cuando se ejecuta el método run() se ejecutan los ilos de forma secuencial, hasta que un hilo termine no comienza el siguiente.
+**Cómo cambia la salida?, por qué?.**
+
+	La diferencia principal se evidencia en el orden que se imprimen los resultados, cuando ejecutamos el método start los hilos se ejecutan e imprimen de una forma intercalada debido al scheduler del sistema operativo es por eso que las secuencias de numeros se ven a pedazos, es decir una parte del primer hilo, luego otra parte del segundo y así. 
+	Cuando se ejecuta el método run() se ejecutan los hilos de forma secuencial, hasta que un hilo termine no comienza el siguiente.
 
 	
 **Parte II - Ejercicio Black List Search**
@@ -65,6 +67,13 @@ Para 'refactorizar' este código, y hacer que explote la capacidad multi-núcleo
 
 1. Cree una clase de tipo Thread que represente el ciclo de vida de un hilo que haga la búsqueda de un segmento del conjunto de servidores disponibles. Agregue a dicha clase un método que permita 'preguntarle' a las instancias del mismo (los hilos) cuantas ocurrencias de servidores maliciosos ha encontrado o encontró.
 
+## Clase `HostBlackListSearchThread`
+
+Se creó la clase **HostBlackListSearchThread.java**, que representa la clase con el ciclo de vida de los hilos para este ejercicio.
+
+Cada instancia de esta clase recibe como parametros el rango de listas a revisar , con el número de ip a revisar, permitiendo aprovechar el desarrolllo de este problema por medio de la parelelización y el uso de hilos.
+
+
 2. Agregue al método 'checkHost' un parámetro entero N, correspondiente al número de hilos entre los que se va a realizar la búsqueda (recuerde tener en cuenta si N es par o impar!). Modifique el código de este método para que divida el espacio de búsqueda entre las N partes indicadas, y paralelice la búsqueda a través de N hilos. Haga que dicha función espere hasta que los N hilos terminen de resolver su respectivo sub-problema, agregue las ocurrencias encontradas por cada hilo a la lista que retorna el método, y entonces calcule (sumando el total de ocurrencuas encontradas por cada hilo) si el número de ocurrencias es mayor o igual a _BLACK_LIST_ALARM_COUNT_. Si se da este caso, al final se DEBE reportar el host como confiable o no confiable, y mostrar el listado con los números de las listas negras respectivas. Para lograr este comportamiento de 'espera' revise el método [join](https://docs.oracle.com/javase/tutorial/essential/concurrency/join.html) del API de concurrencia de Java. Tenga también en cuenta:
 
 	* Dentro del método checkHost Se debe mantener el LOG que informa, antes de retornar el resultado, el número de listas negras revisadas VS. el número de listas negras total (línea 60). Se debe garantizar que dicha información sea verídica bajo el nuevo esquema de procesamiento en paralelo planteado.
@@ -73,6 +82,18 @@ Para 'refactorizar' este código, y hacer que explote la capacidad multi-núcleo
 
 
 ![alt text](img/LabImage/thread/image.png)
+
+En la imagen se observa que se analizaron todas las listas para cada IP.
+
+Como se crean varios hilos para revisar las listas de los servidores, lo que puede ocurrir es que el programa termine antes que cada hilo haya terminado, por esto mismo se usa el metodo .join() validando lo siguiente:
+
+- Esperar a que todos los hilos terminen su búsqueda en su rango.
+
+- Recoger resultados parciales de cada hilo (ej: cuántas listas negras encontró).
+
+- Combinar la información y dar la salida final (ej: "Checked 80,000 of 80,000").
+
+---
 
 **Parte II.I Para discutir la próxima clase (NO para implementar aún)**
 
