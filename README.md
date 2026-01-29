@@ -99,6 +99,18 @@ Como se crean varios hilos para revisar las listas de los servidores, lo que pue
 
 La estrategia de paralelismo antes implementada es ineficiente en ciertos casos, pues la búsqueda se sigue realizando aún cuando los N hilos (en su conjunto) ya hayan encontrado el número mínimo de ocurrencias requeridas para reportar al servidor como malicioso. Cómo se podría modificar la implementación para minimizar el número de consultas en estos casos?, qué elemento nuevo traería esto al problema?
 
+Inicialmente, la implementación paralela dividía el conjunto de listas negras entre varios hilos, pero cada hilo recorría completamente su segmento sin importar si el número mínimo de ocurrencias requerido ya había sido alcanzado por el conjunto de hilos. Esto provocaba consultas innecesarias y un uso ineficiente de recursos.
+
+Para solucionar esto, se modificó la implementación introduciendo un contador global compartido de ocurrencias y una señal de cancelación. De esta manera, cuando el total de coincidencias encontradas por todos los hilos alcanza el límite definido, los hilos detienen cooperativamente su ejecución, garantizando que no haya desperdicio de recursos.
+
+Respuesta a las preguntas
+
+¿Cómo se podría modificar la implementación para minimizar el número de consultas en estos casos?
+Se puede permitir la terminación temprana de la búsqueda en paralelo mediante el uso de un contador global de ocurrencias y una señal compartida que indique a los hilos cuándo deben detenerse, evitando que continúen consultando listas negras innecesariamente una vez alcanzado el límite.
+
+¿Qué elemento nuevo traería esto al problema?
+Esta modificación introduce estado compartido y sincronización entre hilos, lo que añade complejidad al problema concurrente y la necesidad de manejar correctamente posibles condiciones de carrera por medio de mecanismos atómicos.
+
 **Parte III - Evaluación de Desempeño**
 
 A partir de lo anterior, implemente la siguiente secuencia de experimentos para realizar las validación de direcciones IP dispersas (por ejemplo 202.24.34.55), tomando los tiempos de ejecución de los mismos (asegúrese de hacerlos en la misma máquina):
