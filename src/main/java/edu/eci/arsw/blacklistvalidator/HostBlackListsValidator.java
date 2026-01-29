@@ -3,6 +3,8 @@ package edu.eci.arsw.blacklistvalidator;
 import edu.eci.arsw.spamkeywordsdatasource.HostBlacklistsDataSourceFacade;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
  
@@ -10,11 +12,14 @@ import java.util.logging.Logger;
 * 
 * @author Anderson Fabían García y juana Lozano Chaves 
 */
+
+
+
 public class HostBlackListsValidator {
- 
-    private static final int BLACK_LIST_ALARM_COUNT=5;
- 
+
+    public static final int BLACK_LIST_ALARM_COUNT = 5;
     private static final Logger LOG = Logger.getLogger(HostBlackListsValidator.class.getName());
+
     /**
      * Check the given host's IP address in all the available black lists,
      * and report it as NOT Trustworthy when such IP was reported in at least
@@ -26,42 +31,59 @@ public class HostBlackListsValidator {
      * @return  Blacklists numbers where the given host's IP address was found.
      */
     public List<Integer> checkHost(String ipaddress, int N) {
- 
+
         LinkedList<Integer> blackListOccurrences = new LinkedList<>();
         HostBlacklistsDataSourceFacade skds = HostBlacklistsDataSourceFacade.getInstance();
- 
+
         int totalServers = skds.getRegisteredServersCount();
         int segmentSize = totalServers / N;
         int remainder = totalServers % N;
- 
+
+        // NUEVO: estado compartido
+        AtomicInteger globalOccurrences = new AtomicInteger(0);
+        AtomicBoolean stopSearch = new AtomicBoolean(false);
+
         HostBlackListSearchThread[] threads = new HostBlackListSearchThread[N];
- 
+
         int start = 0;
         for (int i = 0; i < N; i++) {
             int end = start + segmentSize + (i < remainder ? 1 : 0);
-            threads[i] = new HostBlackListSearchThread(start, end, ipaddress, skds);
+
+            threads[i] = new HostBlackListSearchThread(
+                    start,
+                    end,
+                    ipaddress,
+                    skds,
+                    globalOccurrences,
+                    stopSearch
+            );
+
             threads[i].start();
             start = end;
         }
+
         int totalChecked = 0;
+
         for (int i = 0; i < N; i++) {
             try {
                 threads[i].join();
                 blackListOccurrences.addAll(threads[i].getOccurrences());
                 totalChecked += threads[i].getCheckedLists();
-            } catch (InterruptedException e) {
-                LOG.log(Level.SEVERE, "Thread interrupted", e);
+            } catch (InterruptedException ex) {
+                LOG.log(Level.SEVERE, "Thread interrupted", ex);
             }
         }
- 
-        if (blackListOccurrences.size() >= BLACK_LIST_ALARM_COUNT) {
+
+        if (globalOccurrences.get() >= BLACK_LIST_ALARM_COUNT) {
             skds.reportAsNotTrustworthy(ipaddress);
         } else {
             skds.reportAsTrustworthy(ipaddress);
         }
- 
-        LOG.log(Level.INFO, "Checked Black Lists:{0} of {1}", new Object[]{totalChecked, totalServers});
- 
+
+        LOG.log(Level.INFO,
+                "Checked Black Lists:{0} of {1}",
+                new Object[]{totalChecked, totalServers});
+
         return blackListOccurrences;
     }
 }
