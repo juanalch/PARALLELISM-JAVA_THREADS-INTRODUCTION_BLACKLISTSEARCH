@@ -181,15 +181,15 @@ Ejecutar el monitor jVisualVM durante las pruebas para registrar:
 
 ![](img/Part3/jvisualvm1.png)
 
-![](img/Part3/jvisualvm2.png)
+![](img/Part3/jvisualvm2.jpg)
 
-![](img/Part3/jvisualvm3.png)
+![](img/Part3/jvisualvm3.jpg)
 
 ### Resultados Esperados
 
 **Gráfica: Tiempo de Solución vs. Número de Hilos**
 
-![](img/Part3/graficas.png)
+![](img/Part3/graficas.jpg)
 
 **Conclusión:**
 La paralelización mejora significativamente el desempeño hasta un número de hilos cercano al número de núcleos. Incrementar excesivamente los hilos genera overhead sin mejoras proporcionales, aunque hay variaciones por terminación temprana y planificación del SO.
